@@ -1,15 +1,19 @@
-# listings/serializers.py
+from django.core.management.base import BaseCommand
+from listings.models import Listing
+from faker import Faker
+import random
 
-from rest_framework import serializers
-from .models import Listing, Booking
+class Command(BaseCommand):
+    help = 'Seed the database with sample listings'
 
-class ListingSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Listing
-        fields = '__all__'
-
-
-class BookingSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Booking
-        fields = '__all__'
+    def handle(self, *args, **kwargs):
+        fake = Faker()
+        for _ in range(10):
+            Listing.objects.create(
+                title=fake.company(),
+                description=fake.text(),
+                location=fake.city(),
+                price_per_night=round(random.uniform(50, 300), 2),
+                available=True
+            )
+        self.stdout.write(self.style.SUCCESS('Database seeded with sample listings!'))
